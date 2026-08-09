@@ -18,3 +18,7 @@ El objetivo del presente proyecto es facilitar el conteo de asistencias diarias 
 * **Pandas:** Manipulación y limpieza de estructuras de datos.
 * **NumPy:** Manejo de valores nulos y operaciones lógicas.
 * **Matplotlib & Seaborn:** Creación de gráficos estadísticos y mapas de calor.
+
+## Visualizaciones clave
+
+
