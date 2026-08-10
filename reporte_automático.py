@@ -20,12 +20,21 @@ Original file is located at
 
 #Libraries
 
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
-from google.colab import userdata
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+
+#from google.colab import userdata ---> Se comentó esta línea debido a que no se usará más,
+#en su lugar se usará os para obtener las credenciales
+
 
 """**Loading data from Google Sheet**"""
 
@@ -161,18 +170,13 @@ def total_attentions_plot(appointments_df, start_date, end_of_the_week):
 
 
 
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from google.colab import userdata
 
 def send_report_email(appointments_df, total_unique_folios_in_week, image_path='atenciones_totales.png'):
     try:
         # 1. Obtener credenciales de Google Colab Secrets
-        sender_email = userdata.get('EMAIL_USER')
-        sender_password = userdata.get('EMAIL_PASS')
-        receiver_email = userdata.get('EMAIL_DESTINO_1')
+        sender_email = os.getenv('EMAIL_USER')
+        sender_password = os.getenv('EMAIL_PASS')
+        receiver_email = os.getenv('EMAIL_DESTINO_1')
 
         # 2. Configurar estructura del mensaje
         msg = MIMEMultipart('related')
@@ -224,7 +228,7 @@ def send_report_email(appointments_df, total_unique_folios_in_week, image_path='
 
 
 #Function 1
-url = userdata.get('data_url_1')
+url = os.getenv('data_url_1')
 df_PILARES = read_google_sheet(url, "ATENCIONES_2026")
 df_PILARES['Fecha'] = pd.to_datetime(df_PILARES['Fecha'], format='%d/%m/%y')
 
@@ -243,5 +247,5 @@ appointments_df, total_unique_folios_in_week = new_users_weekly(appointments_df,
 total_attentions_plot(appointments_df, start_date, end_date)
 
 # Enviar correo:
-#send_report_email(appointments_df, total_unique_folios_in_week, 'atenciones_totales.png')
+send_report_email(appointments_df, total_unique_folios_in_week, 'atenciones_totales.png')
 
