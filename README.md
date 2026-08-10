@@ -21,6 +21,6 @@ El objetivo del presente proyecto es facilitar el conteo de asistencias diarias 
 
 ## Visualizaciones clave
 
-### Reporte enviado el lunes 03 de agosto de 2026
-![Reporte_03_08_26](Imágenes/Reporte_03_08_26.jpeg)
+### Ejemplo de reporte automatizado y recibido por correo electrónico
+![Ejemplo_de_reporte.jpeg](Imágenes/Ejemplo_de_reporte.jpeg)
 
