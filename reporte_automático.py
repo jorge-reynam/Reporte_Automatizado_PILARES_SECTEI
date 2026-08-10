@@ -61,28 +61,29 @@ def read_google_sheet(url, sheet_name):
 
 # Function 2
 
-def get_previous_week ():
-  """
-  This function calculates the previous week's start and end dates.
-  """
-  # datetime represent date and hour
-  # timedelta represents a time difference
+def get_previous_week():
+    today = datetime.today()
 
-  today = datetime.today()
-  # This line extracts current date and hour
+    current_monday = today - timedelta(days=today.weekday())
 
-  current_monday = today - timedelta(days=today.weekday())
-  # This line extract the monday's current week
+    end_date = current_monday - timedelta(days=1)
 
-  # Sema anterior
-  end_date = current_monday - timedelta(days=1)
-  # This line extract the last day of the previous week
+    start_date = end_date - timedelta(days=6)
 
-  start_date = end_date - timedelta(days=6)
-  # This line returns the first day of the previous week
-
-  # Mantenemos las fechas como datetime para poder filtrar correctamente en Pandas
-  return start_date.replace(hour=0, minute=0, second=0, microsecond=0), end_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    return (
+        start_date.replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        ),
+        end_date.replace(
+            hour=23,
+            minute=59,
+            second=59,
+            microsecond=999999
+        )
+    )
 
 # Function 3
 
@@ -190,15 +191,15 @@ def send_report_email(appointments_df, total_unique_folios_in_week, image_path='
         # Cuerpo del mensaje en formato HTML
         html_content = f"""
         <html>
-  <body>
-    <h2>Reporte de Atenciones Semanales</h2>
-    <p>A continuación se adjunta la tabla con el desglose del reporte:</p>
-    {df_html}
-    <p><b>Total de folios únicos en la semana:</b> {str(total_unique_folios_in_week)}</p>
-    <br>
-    <p>Gráfica de atenciones adjunta en este correo.</p>
-  </body>
-</html>
+        <body>
+          <h2>Reporte de Atenciones Semanales</h2>
+          <p>A continuación se adjunta la tabla con el desglose del reporte:</p>
+          {df_html}
+          <p><b>Total de folios únicos en la semana:</b> {total_unique_folios_in_week}</p>
+          <br>
+          <p>Gráfica de atenciones adjunta en este correo.</p>
+        </body>
+        </html>
         """
 
         msg_alternative = MIMEMultipart('alternative')
@@ -228,7 +229,7 @@ def send_report_email(appointments_df, total_unique_folios_in_week, image_path='
 
 
 #Function 1
-url = os.getenv('data_url_1')
+url = os.getenv('DATA_URL')
 df_PILARES = read_google_sheet(url, "ATENCIONES_2026")
 df_PILARES['Fecha'] = pd.to_datetime(df_PILARES['Fecha'], format='%d/%m/%y')
 
