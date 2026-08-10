@@ -1,0 +1,28 @@
+name: Reporte semanal de atenciones
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ejecutar-reporte:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar reporte
+        env:
+          DATA_URL: ${{ secrets.DATA_URL }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_DESTINO_1: ${{ secrets.EMAIL_DESTINO_1 }}
+        run: python reporte_automático.py
