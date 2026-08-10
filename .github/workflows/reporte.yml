@@ -1,28 +1,69 @@
+# Nombre que tendrá el workflow dentro de GitHub Actions
 name: Reporte semanal de atenciones
 
+# Define cuándo se ejecutará automáticamente el workflow
 on:
+
+  # Permite ejecutar el workflow manualmente desde GitHub Actions
   workflow_dispatch:
 
+  # Programa ejecuciones automáticas mediante una expresión cron
+  schedule:
+    # Ejecuta el workflow cada domingo a las 18:00 UTC
+    # Equivale a las 12:00 PM en Ciudad de México
+    - cron: '0 18 * * 0'
+
+
+# Define los trabajos que realizará el workflow
 jobs:
+
+  # Nombre identificador del trabajo
   ejecutar-reporte:
+
+    # Máquina virtual de GitHub donde se ejecutará el código
     runs-on: ubuntu-latest
 
+    # Lista de pasos que se ejecutarán en orden
     steps:
+
+      # Descarga el contenido de nuestro repositorio
+      # para que GitHub pueda acceder al código y archivos
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
+
+      # Instala y configura Python en la máquina virtual
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
+          # Versión de Python que utilizará el workflow
           python-version: '3.13'
 
+
+      # Instala todas las librerías necesarias
+      # especificadas en requirements.txt
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
+
+      # Ejecuta nuestro script principal de Python
       - name: Ejecutar reporte
+
+        # Variables de entorno que contienen información
+        # almacenada de forma segura en GitHub Secrets
         env:
+
+          # URL utilizada para obtener los datos
           DATA_URL: ${{ secrets.DATA_URL }}
+
+          # Correo utilizado para enviar el reporte
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
+
+          # Contraseña del correo
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+
+          # Correo o correos que recibirán el reporte
           EMAIL_DESTINO_1: ${{ secrets.EMAIL_DESTINO_1 }}
+
+        # Ejecuta el script que genera y envía el reporte
         run: python reporte_automático.py
