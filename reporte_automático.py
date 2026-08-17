@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
 import smtplib
+import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
@@ -307,10 +308,10 @@ for envio_config in datos_envio:
   current_password_secret = envio_config['password_key']
 
   # Get the actual values from userdata
-  current_url = userdata.get(current_data_url_secret)
-  current_correo_destinatario = userdata.get(current_email_dest_secret)
-  current_correo_remitente = userdata.get(current_email_remit_secret)
-  current_password = userdata.get(current_password_secret)
+  current_url = os.environ(current_data_url_secret)
+  current_correo_destinatario = os.environ(current_email_dest_secret)
+  current_correo_remitente = os.environ(current_email_remit_secret)
+  current_password = os.environ(current_password_secret)
 
   try:
     #Function 1 - Use current_url from the iteration
