@@ -20,21 +20,17 @@ Original file is located at
 
 #Libraries
 
-import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
-
+from google.colab import userdata
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
-
-#from google.colab import userdata ---> Se comentó esta línea debido a que no se usará más,
-#en su lugar se usará os para obtener las credenciales
-
+from google.colab import userdata
 
 """**Loading data from Google Sheet**"""
 
@@ -131,20 +127,66 @@ def new_users_weekly(appointments_df, start_date, end_of_the_week):
 
   # Count unique 'Folio' values for new users per date and hour
   new_users = new_users_date.groupby(['Fecha', 'Hora'])['Folio'].nunique().unstack(fill_value=0)
+
   total_unique_folios_in_week = new_users_date['Folio'].nunique()
 
-  # Counting play and educational activities using .isin()
+  # Crear un DF (Folio y Actividad) filtrado por fecha
+  usuarios_por_actividad = new_users_date.groupby('Actividad')['Folio'].count()
+  usuarios_por_actividad_df = usuarios_por_actividad.reset_index()
+  usuarios_por_actividad_df = usuarios_por_actividad_df.rename(columns={'Folio': 'Total'})
+
+  # Contar las atenciones lúdicas y educativas usando .isin()
   ludicas = ['Curso de verano', ' IMSS - Bienestar', 'TAC (Tecnologías del Aprendizaje y el Conocimiento)', 'Talleres Lúdicos, recreativos y/o Pedagógicos', 'Verano divertido']
 
   actividades_ludicas_df = usuarios_por_actividad_df['Actividad'].isin(ludicas)
 
   atenciones_ludicas = usuarios_por_actividad_df.loc[actividades_ludicas_df, 'Total'].sum()
   atenciones_educativas = usuarios_por_actividad_df.loc[~actividades_ludicas_df, 'Total'].sum()
-    
+
+
   #print(f"Total de folios únicos en la semana del {start_date.strftime('%d/%m/%y')} al {end_of_the_week.strftime('%d/%m/%y')} : {total_unique_folios_in_week}")
-  #print()
+  print()
   #print(appointments_df)
-  #print()
+  print()
+  return appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas
+
+# Function 4
+
+def new_users_weekly(appointments_df, start_date, end_of_the_week):
+  """
+  This function calculates the new users for appointments.
+
+  Parameters:
+  appointments_df: DataFrame con las métricas
+  start_date: The start date of the week.
+  end_of_the_week: The end date of the week.
+  """
+  # Filter the DataFrame for dates within the specified week
+  new_users_date = df_PILARES[(df_PILARES['Fecha'] >= start_date) & (df_PILARES['Fecha'] <= end_of_the_week)]
+
+  # Count unique 'Folio' values for new users per date and hour
+  new_users = new_users_date.groupby(['Fecha', 'Hora'])['Folio'].nunique().unstack(fill_value=0)
+
+  total_unique_folios_in_week = new_users_date['Folio'].nunique()
+
+  # Crear un DF (Folio y Actividad) filtrado por fecha
+  usuarios_por_actividad = new_users_date.groupby('Actividad')['Folio'].nunique()
+  usuarios_por_actividad_df = usuarios_por_actividad.reset_index()
+  usuarios_por_actividad_df = usuarios_por_actividad_df.rename(columns={'Folio': 'Total'})
+
+  # Contar las atenciones lúdicas y educativas usando .isin()
+  ludicas = ['Curso de verano', ' IMSS - Bienestar', 'TAC (Tecnologías del Aprendizaje y el Conocimiento)', 'Talleres Lúdicos, recreativos y/o Pedagógicos', ' Verano divertido']
+
+  actividades_ludicas_df = usuarios_por_actividad_df['Actividad'].isin(ludicas)
+
+  atenciones_ludicas = usuarios_por_actividad_df.loc[actividades_ludicas_df, 'Total'].sum()
+  atenciones_educativas = usuarios_por_actividad_df.loc[~actividades_ludicas_df, 'Total'].sum()
+
+
+  #print(f"Total de folios únicos en la semana del {start_date.strftime('%d/%m/%y')} al {end_of_the_week.strftime('%d/%m/%y')} : {total_unique_folios_in_week}")
+  print()
+  #print(appointments_df)
+  print()
   return appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas
 
 #Function 5
@@ -165,7 +207,8 @@ def total_attentions_plot(appointments_df, start_date, end_of_the_week):
   appointments_df = appointments_df.sort_values(by='Fecha').reset_index(drop=True)
 
   plt.figure(figsize=(6, 3))
-  sns.barplot(x='Fecha', y='Total', data=appointments_df, color='#7A1F3D')
+  sns.barplot(x='Fecha', y='Total', data=appointments_df, palette="blend:#E8DCC4,#6A1B31", hue='Total', legend=False)
+  plt.xticks(rotation=45)
   plt.title(f'Atenciones totales en la semana de {start_date.strftime("%d/%m/%y")} - {end_of_the_week.strftime("%d/%m/%y")}')
   plt.xlabel('Fecha')
   plt.ylabel('Atenciones totales')
@@ -173,17 +216,18 @@ def total_attentions_plot(appointments_df, start_date, end_of_the_week):
   plt.xticks(rotation=45)
   plt.tight_layout()
   plt.savefig('atenciones_totales.png')
-  plt.show()
+  # plt.show() # Se comenta esta línea para que no se muestre la gráfica en el notebook
+  plt.close() # Cierra la figura para liberar memoria y evitar que se muestre en futuras celdas
   return
 
+# Función 6
 
-# Function 6
 def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas, sender_email, sender_password, receiver_email, image_path='atenciones_totales.png'):
     try:
         # 1. Obtener credenciales de Google Colab Secrets
-        #sender_email = os.getenv('EMAIL_USER')
-        #sender_password = os.getenv('EMAIL_PASS')
-        #receiver_email = os.getenv('EMAIL_DESTINO_1')
+        #sender_email = userdata.get('EMAIL_USER')
+        #sender_password = userdata.get('EMAIL_PASS')
+        #receiver_email = userdata.get('EMAIL_DESTINO_1')
 
         # 2. Configurar estructura del mensaje
         msg = MIMEMultipart('related')
@@ -197,24 +241,23 @@ def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_l
         # Cuerpo del mensaje en formato HTML
         html_content = f"""
         <html>
-        <body>
-          <h2>Reporte de Atenciones Semanales</h2>
-          <p>A continuación se adjunta la tabla con el desglose del reporte:</p>
-          {df_html}
-          <p><b>Total de folios únicos en la semana:</b> {total_unique_folios_in_week}</p>
-          <br>
-          <p><b>Total de atenciones educativas en la semana:</b> {str(atenciones_educativas)}</p>
-          <br>
-          <p><b>Total de atenciones lúdicas en la semana:</b> {str(atenciones_ludicas)}</p>
-          <br>
-          <p style="text-align: justify;"><b>NOTA</b></p>
-          <p style="text-align: justify;"><b>Las actividades lúdicas consideradas en el cálculo se describen \
-          a continuación: Curso de verano, IMSS - Bienestar, TAC (Tecnologías del Aprendizaje y el \
-          Conocimiento), Talleres Lúdicos, recreativos y/o Pedagógicos</b></p>
-          <br>
-          <p>Gráfica de atenciones adjunta en este correo.</p>
-        </body>
-        </html>
+  <body>
+    <h2>Reporte de Atenciones Semanales</h2>
+    <p>A continuación se adjunta la tabla con el desglose del reporte:</p>
+    {df_html}
+    <p><b>Total de usuarios únicos atendidos en la semana:</b> {str(total_unique_folios_in_week)}</p>
+    <br>
+    <p><b>Total de atenciones educativas en la semana:</b> {str(atenciones_educativas)}</p>
+    <br>
+    <p><b>Total de atenciones lúdicas en la semana:</b> {str(atenciones_ludicas)}</p>
+    <br>
+    <p style="text-align: justify;"><b>NOTA</b></p>
+    <p style="text-align: justify;"><b>Las actividades lúdicas consideradas en el cálculo se describen a continuación: Curso de verano, IMSS - Bienestar, TAC (Tecnologías del Aprendizaje y el \
+    Conocimiento), Talleres Lúdicos, recreativos y/o Pedagógicos</b></p>
+    <br>
+    <p>Gráfica de atenciones adjunta en este correo.</p>
+  </body>
+</html>
         """
 
         msg_alternative = MIMEMultipart('alternative')
@@ -233,17 +276,12 @@ def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_l
             server.login(sender_email, sender_password)
             server.sendmail(sender_email, receiver_email, msg.as_string())
 
-        print("📧 ¡Reporte enviado exitosamente por correo!")
+        print("📧 ¡Reporte enviado exitosamente por correo! ")
 
     except Exception as e:
         print(f"❌ Error al enviar el correo: {e}")
 
-# ==========================================
-# Deploy script
-# ==========================================
-
-
-send_data = [
+datos_envio = [
     {
         # Datos Paola
         'data_url_key' : 'data_Paola',
