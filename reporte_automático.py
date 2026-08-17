@@ -283,16 +283,16 @@ def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_l
 datos_envio = [
     {
         # Datos Paola
-        'data_url_key' : 'data_Paola',
-        'correo_destinatario_key' : 'email_Paola',
+        'data_url_key' : 'DATA_PAOLA',
+        'correo_destinatario_key' : 'EMAIL_PAOLA',
         'correo_remitente_key' : 'EMAIL_USER',
         'password_key' : 'EMAIL_PASS'
     },
 
     {
         # Datos Jorge
-        'data_url_key' : 'data_Jorge',
-        'correo_destinatario_key' : 'email_Jorge',
+        'data_url_key' : 'DATA_JORGE',
+        'correo_destinatario_key' : 'EMAIL_JORGE',
         'correo_remitente_key' : 'EMAIL_USER',
         'password_key' : 'EMAIL_PASS'
     }
