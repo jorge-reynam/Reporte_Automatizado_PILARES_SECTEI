@@ -131,14 +131,21 @@ def new_users_weekly(appointments_df, start_date, end_of_the_week):
 
   # Count unique 'Folio' values for new users per date and hour
   new_users = new_users_date.groupby(['Fecha', 'Hora'])['Folio'].nunique().unstack(fill_value=0)
-
   total_unique_folios_in_week = new_users_date['Folio'].nunique()
 
-  print(f"Total de folios únicos en la semana del {start_date.strftime('%d/%m/%y')} al {end_of_the_week.strftime('%d/%m/%y')} : {total_unique_folios_in_week}")
-  print()
-  print(appointments_df)
-  print()
-  return appointments_df, total_unique_folios_in_week
+  # Counting play and educational activities using .isin()
+  ludicas = ['Curso de verano', ' IMSS - Bienestar', 'TAC (Tecnologías del Aprendizaje y el Conocimiento)', 'Talleres Lúdicos, recreativos y/o Pedagógicos', 'Verano divertido']
+
+  actividades_ludicas_df = usuarios_por_actividad_df['Actividad'].isin(ludicas)
+
+  atenciones_ludicas = usuarios_por_actividad_df.loc[actividades_ludicas_df, 'Total'].sum()
+  atenciones_educativas = usuarios_por_actividad_df.loc[~actividades_ludicas_df, 'Total'].sum()
+    
+  #print(f"Total de folios únicos en la semana del {start_date.strftime('%d/%m/%y')} al {end_of_the_week.strftime('%d/%m/%y')} : {total_unique_folios_in_week}")
+  #print()
+  #print(appointments_df)
+  #print()
+  return appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas
 
 #Function 5
 
@@ -170,14 +177,13 @@ def total_attentions_plot(appointments_df, start_date, end_of_the_week):
   return
 
 
-
-
-def send_report_email(appointments_df, total_unique_folios_in_week, image_path='atenciones_totales.png'):
+# Function 6
+def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas, sender_email, sender_password, receiver_email, image_path='atenciones_totales.png'):
     try:
         # 1. Obtener credenciales de Google Colab Secrets
-        sender_email = os.getenv('EMAIL_USER')
-        sender_password = os.getenv('EMAIL_PASS')
-        receiver_email = os.getenv('EMAIL_DESTINO_1')
+        #sender_email = os.getenv('EMAIL_USER')
+        #sender_password = os.getenv('EMAIL_PASS')
+        #receiver_email = os.getenv('EMAIL_DESTINO_1')
 
         # 2. Configurar estructura del mensaje
         msg = MIMEMultipart('related')
@@ -196,6 +202,15 @@ def send_report_email(appointments_df, total_unique_folios_in_week, image_path='
           <p>A continuación se adjunta la tabla con el desglose del reporte:</p>
           {df_html}
           <p><b>Total de folios únicos en la semana:</b> {total_unique_folios_in_week}</p>
+          <br>
+          <p><b>Total de atenciones educativas en la semana:</b> {str(atenciones_educativas)}</p>
+          <br>
+          <p><b>Total de atenciones lúdicas en la semana:</b> {str(atenciones_ludicas)}</p>
+          <br>
+          <p style="text-align: justify;"><b>NOTA</b></p>
+          <p style="text-align: justify;"><b>Las actividades lúdicas consideradas en el cálculo se describen \
+          a continuación: Curso de verano, IMSS - Bienestar, TAC (Tecnologías del Aprendizaje y el \
+          Conocimiento), Talleres Lúdicos, recreativos y/o Pedagógicos</b></p>
           <br>
           <p>Gráfica de atenciones adjunta en este correo.</p>
         </body>
@@ -228,25 +243,59 @@ def send_report_email(appointments_df, total_unique_folios_in_week, image_path='
 # ==========================================
 
 
-#Function 1
-url = os.getenv('DATA_URL')
-df_PILARES = read_google_sheet(url, "ATENCIONES_2026")
-df_PILARES['Fecha'] = pd.to_datetime(df_PILARES['Fecha'], format='%d/%m/%y')
+send_data = [
+    {
+        # Datos Paola
+        'data_url_key' : 'data_Paola',
+        'correo_destinatario_key' : 'email_Paola',
+        'correo_remitente_key' : 'EMAIL_USER',
+        'password_key' : 'EMAIL_PASS'
+    },
 
-# Function 2
-# Save variables star_date and end_date
-start_date, end_date = get_previous_week()
+    {
+        # Datos Jorge
+        'data_url_key' : 'data_Jorge',
+        'correo_destinatario_key' : 'email_Jorge',
+        'correo_remitente_key' : 'EMAIL_USER',
+        'password_key' : 'EMAIL_PASS'
+    }
+]
 
-#Function 3
 
-appointments_df = weekly_metrics(start_date, end_date)
+for envio_config in datos_envio:
+  # Retrieve the keys from the current config
+  current_data_url_secret = envio_config['data_url_key']
+  current_email_dest_secret = envio_config['correo_destinatario_key']
+  current_email_remit_secret = envio_config['correo_remitente_key']
+  current_password_secret = envio_config['password_key']
 
-#Function 4
-appointments_df, total_unique_folios_in_week = new_users_weekly(appointments_df, start_date, end_date)
+  # Get the actual values from userdata
+  current_url = userdata.get(current_data_url_secret)
+  current_correo_destinatario = userdata.get(current_email_dest_secret)
+  current_correo_remitente = userdata.get(current_email_remit_secret)
+  current_password = userdata.get(current_password_secret)
 
-#Function 5
-total_attentions_plot(appointments_df, start_date, end_date)
+  try:
+    #Function 1 - Use current_url from the iteration
+    df_PILARES = read_google_sheet(current_url, "ATENCIONES_2026")
+    df_PILARES['Fecha'] = pd.to_datetime(df_PILARES['Fecha'], format='%d/%m/%y')
 
-# Enviar correo:
-send_report_email(appointments_df, total_unique_folios_in_week, 'atenciones_totales.png')
+    # Function 2
+    # Save variables star_date and end_date
+    start_date, end_date = get_previous_week()
 
+    #Function 3
+
+    appointments_df = weekly_metrics(start_date, end_date)
+
+    #Function 4
+    appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas = new_users_weekly(appointments_df, start_date, end_date)
+
+    #Function 5
+    total_attentions_plot(appointments_df, start_date, end_date)
+
+    # Enviar correo: - Use the current values from the iteration
+    send_report_email(appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas, sender_email=current_correo_remitente, sender_password=current_password, receiver_email=current_correo_destinatario, image_path='atenciones_totales.png')
+
+  except Exception as e:
+    print(f"Error processing for URL: {current_url} and Recipient: {current_correo_destinatario}. Error: {e}")
