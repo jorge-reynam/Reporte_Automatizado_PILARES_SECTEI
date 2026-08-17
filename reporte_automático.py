@@ -25,7 +25,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
-from google.colab import userdata
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
