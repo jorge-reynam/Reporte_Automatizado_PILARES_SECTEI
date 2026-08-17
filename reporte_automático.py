@@ -310,7 +310,7 @@ for envio_config in datos_envio:
   current_url = os.getenv(current_data_url_secret)
   current_correo_destinatario = os.getenv(current_email_dest_secret)
   current_correo_remitente = os.getenv(current_email_remit_secret)
-  current_password = os.getenvcurrent_password_secret)
+  current_password = os.getenv(current_password_secret)
 
   try:
     #Function 1 - Use current_url from the iteration
