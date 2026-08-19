@@ -54,7 +54,8 @@ jobs:
         env:
 
           # URL utilizada para obtener los datos
-          DATA_URL: ${{ secrets.DATA_URL }}
+          DATA_JORGE: ${{ secrets.DATA_JORGE }}
+          DATA_PAOLA: ${{ secrets.DATA_PAOLA }}
 
           # Correo utilizado para enviar el reporte
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
@@ -63,7 +64,8 @@ jobs:
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
 
           # Correo o correos que recibirán el reporte
-          EMAIL_DESTINO_1: ${{ secrets.EMAIL_DESTINO_1 }}
+          EMAIL_JORGE: ${{ secrets.EMAIL_JORGE }}
+          EMAIL_PAOLA: ${{ secrets.EMAIL_PAOLA }}
 
         # Ejecuta el script que genera y envía el reporte
         run: python reporte_automático.py
