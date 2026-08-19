@@ -9,7 +9,7 @@ on:
 
   # Programa ejecuciones automáticas mediante una expresión cron
   schedule:
-    # Ejecuta el workflow cada lunes a las 18:00 UTC
+    # Ejecuta el workflow cada lunes a las 14:00 UTC
     # Equivale a las 8:00 am en Ciudad de México
     - cron: '0 14 * * 1'
 
