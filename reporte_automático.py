@@ -174,7 +174,7 @@ def new_users_weekly(appointments_df, start_date, end_of_the_week):
   usuarios_por_actividad_df = usuarios_por_actividad_df.rename(columns={'Folio': 'Total'})
 
   # Contar las atenciones lúdicas y educativas usando .isin()
-  ludicas = ['Curso de verano', ' IMSS - Bienestar', 'TAC (Tecnologías del Aprendizaje y el Conocimiento)', 'Talleres Lúdicos, recreativos y/o Pedagógicos', ' Verano divertido']
+  ludicas = ['Curso de verano', ' IMSS - Bienestar', 'TAC (Tecnologías del Aprendizaje y el Conocimiento)', 'Talleres Lúdicos, recreativos y/o Pedagógicos', ' Verano divertido', 'Talleres de lenguas']
 
   actividades_ludicas_df = usuarios_por_actividad_df['Actividad'].isin(ludicas)
 
@@ -251,7 +251,7 @@ def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_l
     <p><b>Total de atenciones lúdicas en la semana:</b> {str(atenciones_ludicas)}</p>
     <br>
     <p style="text-align: justify;"><b>NOTA</b></p>
-    <p style="text-align: justify;"><b>Las actividades lúdicas consideradas en el cálculo se describen a continuación: Curso de verano, IMSS - Bienestar, TAC (Tecnologías del Aprendizaje y el \
+    <p style="text-align: justify;"><b>Las actividades lúdicas consideradas en el cálculo se describen a continuación: Curso de verano, Taller de lenguas, IMSS - Bienestar, TAC (Tecnologías del Aprendizaje y el \
     Conocimiento), Talleres Lúdicos, recreativos y/o Pedagógicos</b></p>
     <br>
     <p>Gráfica de atenciones adjunta en este correo.</p>
