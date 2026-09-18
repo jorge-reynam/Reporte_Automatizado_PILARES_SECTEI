@@ -295,7 +295,7 @@ for envio_config in datos_envio:
     total_attentions_plot(appointments_df, start_date, end_date)
 
     # Enviar correo: - Use the current values from the iteration
-    send_report_email(appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas, sender_email=current_correo_remitente, sender_password=current_password, receiver_email=current_correo_destinatario, image_path='atenciones_totales.png')
+    send_report_email(appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas, total_atenciones, sender_email=current_correo_remitente, sender_password=current_password, receiver_email=current_correo_destinatario, image_path='atenciones_totales.png')
 
   except Exception as e:
     print(f"Error processing for URL: {current_url} and Recipient: {current_correo_destinatario}. Error: {e}")
