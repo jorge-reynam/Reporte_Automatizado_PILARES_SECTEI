@@ -110,6 +110,7 @@ def weekly_metrics(start_date, end_of_the_week):
   appointments_df['Total'] = appointments_df[cols].sum(axis=1)
   return appointments_df
 
+
 # Function 4
 
 def new_users_weekly(appointments_df, start_date, end_of_the_week):
@@ -134,58 +135,18 @@ def new_users_weekly(appointments_df, start_date, end_of_the_week):
   usuarios_por_actividad_df = usuarios_por_actividad.reset_index()
   usuarios_por_actividad_df = usuarios_por_actividad_df.rename(columns={'Folio': 'Total'})
 
+  #Contar el número total de atenciones
+  total_atenciones = usuarios_por_actividad_df['Total'].sum()
+
   # Contar las atenciones lúdicas y educativas usando .isin()
-  ludicas = ['Curso de verano', ' IMSS - Bienestar', 'TAC (Tecnologías del Aprendizaje y el Conocimiento)', 'Talleres Lúdicos, recreativos y/o Pedagógicos', 'Verano divertido']
+  ludicas = ['TAC (Tecnologías del Aprendizaje y el Conocimiento)', 'Talleres Lúdicos, recreativos y/o Pedagógicos', 'Talleres de lenguas', \
+           'IMSS - Bienestar', 'Trámite en línea', 'Verano divertido', 'Ciencia en PILARES']
 
   actividades_ludicas_df = usuarios_por_actividad_df['Actividad'].isin(ludicas)
 
   atenciones_ludicas = usuarios_por_actividad_df.loc[actividades_ludicas_df, 'Total'].sum()
   atenciones_educativas = usuarios_por_actividad_df.loc[~actividades_ludicas_df, 'Total'].sum()
 
-
-  #print(f"Total de folios únicos en la semana del {start_date.strftime('%d/%m/%y')} al {end_of_the_week.strftime('%d/%m/%y')} : {total_unique_folios_in_week}")
-  print()
-  #print(appointments_df)
-  print()
-  return appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas
-
-# Function 4
-
-def new_users_weekly(appointments_df, start_date, end_of_the_week):
-  """
-  This function calculates the new users for appointments.
-
-  Parameters:
-  appointments_df: DataFrame con las métricas
-  start_date: The start date of the week.
-  end_of_the_week: The end date of the week.
-  """
-  # Filter the DataFrame for dates within the specified week
-  new_users_date = df_PILARES[(df_PILARES['Fecha'] >= start_date) & (df_PILARES['Fecha'] <= end_of_the_week)]
-
-  # Count unique 'Folio' values for new users per date and hour
-  new_users = new_users_date.groupby(['Fecha', 'Hora'])['Folio'].nunique().unstack(fill_value=0)
-
-  total_unique_folios_in_week = new_users_date['Folio'].nunique()
-
-  # Crear un DF (Folio y Actividad) filtrado por fecha
-  usuarios_por_actividad = new_users_date.groupby('Actividad')['Folio'].nunique()
-  usuarios_por_actividad_df = usuarios_por_actividad.reset_index()
-  usuarios_por_actividad_df = usuarios_por_actividad_df.rename(columns={'Folio': 'Total'})
-
-  # Contar las atenciones lúdicas y educativas usando .isin()
-  ludicas = ['Curso de verano', ' IMSS - Bienestar', 'TAC (Tecnologías del Aprendizaje y el Conocimiento)', 'Talleres Lúdicos, recreativos y/o Pedagógicos', ' Verano divertido', 'Talleres de lenguas']
-
-  actividades_ludicas_df = usuarios_por_actividad_df['Actividad'].isin(ludicas)
-
-  atenciones_ludicas = usuarios_por_actividad_df.loc[actividades_ludicas_df, 'Total'].sum()
-  atenciones_educativas = usuarios_por_actividad_df.loc[~actividades_ludicas_df, 'Total'].sum()
-
-
-  #print(f"Total de folios únicos en la semana del {start_date.strftime('%d/%m/%y')} al {end_of_the_week.strftime('%d/%m/%y')} : {total_unique_folios_in_week}")
-  print()
-  #print(appointments_df)
-  print()
   return appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas
 
 #Function 5
@@ -244,6 +205,8 @@ def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_l
     <h2>Reporte de Atenciones Semanales</h2>
     <p>A continuación se adjunta la tabla con el desglose del reporte:</p>
     {df_html}
+    <p><b>Total de atenciones registradas en la semana:</b> {str(total_atenciones)}</p>
+    <br>
     <p><b>Total de usuarios únicos atendidos en la semana:</b> {str(total_unique_folios_in_week)}</p>
     <br>
     <p><b>Total de atenciones educativas en la semana:</b> {str(atenciones_educativas)}</p>
