@@ -182,7 +182,7 @@ def total_attentions_plot(appointments_df, start_date, end_of_the_week):
 
 # Función 6
 
-def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas, sender_email, sender_password, receiver_email, total_atenciones, image_path='atenciones_totales.png'):
+def send_report_email(appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas, total_atenciones, sender_email, sender_password, receiver_email, image_path='atenciones_totales.png'):
     try:
         # 1. Obtener credenciales de Google Colab Secrets
         #sender_email = userdata.get('EMAIL_USER')
