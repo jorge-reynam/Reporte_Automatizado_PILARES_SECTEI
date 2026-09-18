@@ -289,8 +289,8 @@ for envio_config in datos_envio:
     appointments_df = weekly_metrics(start_date, end_date)
 
     #Function 4
-    appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas = new_users_weekly(appointments_df, start_date, end_date)
-
+    appointments_df, total_unique_folios_in_week, total_atenciones, atenciones_ludicas, atenciones_educativas = new_users_weekly(appointments_df, start_date, end_date)
+    
     #Function 5
     total_attentions_plot(appointments_df, start_date, end_date)
 
