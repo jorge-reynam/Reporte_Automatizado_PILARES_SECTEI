@@ -147,7 +147,7 @@ def new_users_weekly(appointments_df, start_date, end_of_the_week):
   atenciones_ludicas = usuarios_por_actividad_df.loc[actividades_ludicas_df, 'Total'].sum()
   atenciones_educativas = usuarios_por_actividad_df.loc[~actividades_ludicas_df, 'Total'].sum()
 
-  return appointments_df, total_unique_folios_in_week, atenciones_ludicas, atenciones_educativas, total_atenciones
+  return appointments_df, total_unique_folios_in_week, total_atenciones, atenciones_ludicas, atenciones_educativas
 
 #Function 5
 
